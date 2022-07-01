@@ -11,14 +11,32 @@ app.use(express.json());
 
 
 
-const uri = `mongodb+srv://${process.env.DB_USE}:${process.env.DB_PASS}@cluster0.zyufm.mongodb.net/?retryWrites=true&w=majority`;
+const uri = "mongodb+srv://taskapp:GjG2mARp9vM3jzCC@cluster0.zyufm.mongodb.net/?retryWrites=true&w=majority";
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
-client.connect(err => {
-    const collection = client.db("test").collection("devices");
-    console.log('task management app connected');
-  // perform actions on the collection object
-  client.close();
-});
+
+async function run() {
+    try {
+        await client.connect();
+        const taskCollection = client.db('taskManagement').collection('task');
+        app.post('/user', async (req, res) => {
+            const newUser = req.body;
+            console.log('adding new user', newUser);
+            const result = await taskCollection.insertOne(newUser);
+            res.send(result)
+        })
+
+        // const user = { name: 'Mahi', email: 'fff@gmail.com', phone: '3928383' };
+        // const result = await taskCollection.insertOne(user);
+        // console.log(`user inserted id:, ${result.insertedId}`)
+    }
+
+    finally {
+        
+    }
+}
+
+
+run().catch(console.dir);
 
 
 app.get('/', (req, res) => {
